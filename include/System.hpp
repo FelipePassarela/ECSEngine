@@ -3,7 +3,7 @@
 #include <cassert>
 
 #include "Entity.hpp"
-#include "EntityRegistry.hpp"
+#include "EntitySparseSet.hpp"
 
 class System {
 private:
