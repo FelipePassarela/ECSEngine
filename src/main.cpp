@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "../include/ComponentRegistry.hpp"
+#include "../include/ECSManager.hpp"
 
-// Componentes de teste
+// ==================== Componentes ====================
 struct Position {
     float x, y;
 };
@@ -11,45 +11,112 @@ struct Velocity {
     float dx, dy;
 };
 
-int main() {
-    ComponentRegistry registry;
+struct Health {
+    int hp;
+};
 
-    // Criar algumas entidades
-    Entity e1 = 0;
-    Entity e2 = 1;
-    Entity e3 = 2;
+// ==================== Sistemas Simples para Teste ====================
+
+// Sistema que só imprime quando update é chamado
+class PrintSystem : public System {
+public:
+    void update(float dt) override {
+        std::cout << "[PrintSystem] Update chamado com dt=" << dt << "\n";
+    }
+
+    bool required(Entity e) override {
+        return true;  // Aceita todas as entidades
+    }
+};
+
+class CounterSystem : public System {
+public:
+    void update(float dt) override {
+        updateCount++;
+        std::cout << "[CounterSystem] Update #" << updateCount << "\n";
+    }
+
+    bool required(Entity e) override {
+        return e % 2 == 0;  // Aceita apenas entidades pares
+    }
+
+    int getUpdateCount() const { return updateCount; }
+
+private:
+    int updateCount = 0;
+};
+
+// ==================== Testes ====================
+int main() {
+    std::cout << "========================================\n";
+    std::cout << "       Teste do ECSManager\n";
+    std::cout << "========================================\n\n";
+
+    // Criar o ECS Manager
+    ECSManager& ecs = ECSManager::getInstance();
+
+    // Registrar sistemas
+    std::cout << ">>> Registrando sistemas...\n";
+    ecs.addSystem(PrintSystem());
+    ecs.addSystem(CounterSystem());
+    std::cout << "  Sistemas registrados!\n";
+
+    // Criar entidades
+    std::cout << "\n>>> Criando entidades...\n";
+    Entity e0 = ecs.createEntity();
+    Entity e1 = ecs.createEntity();
+    Entity e2 = ecs.createEntity();
+    Entity e3 = ecs.createEntity();
+
+    std::cout << "  Criadas entidades: " << e0 << ", " << e1 << ", " << e2 << ", " << e3 << "\n";
 
     // Adicionar componentes
-    registry.add(e1, Position{10.0f, 20.0f});
-    registry.add(e1, Velocity{1.0f, 2.0f});
+    std::cout << "\n>>> Adicionando componentes...\n";
 
-    registry.add(e2, Position{30.0f, 40.0f});
+    ecs.addComponent(e0, Position{0.0f, 0.0f});
+    ecs.addComponent(e0, Velocity{1.0f, 0.5f});
+    std::cout << "  Entity " << e0 << ": Position, Velocity\n";
 
-    registry.add(e3, Position{50.0f, 60.0f});
-    registry.add(e3, Velocity{3.0f, 4.0f});
+    ecs.addComponent(e1, Position{10.0f, 10.0f});
+    ecs.addComponent(e1, Health{100});
+    std::cout << "  Entity " << e1 << ": Position, Health\n";
 
-    // Testar se os componentes foram adicionados
-    std::cout << "=== Teste de ComponentRegistry ===" << std::endl;
+    ecs.addComponent(e2, Position{20.0f, 5.0f});
+    ecs.addComponent(e2, Velocity{-1.0f, 0.0f});
+    ecs.addComponent(e2, Health{50});
+    std::cout << "  Entity " << e2 << ": Position, Velocity, Health\n";
 
-    auto* posArray = registry.getArray<Position>();
-    auto* velArray = registry.getArray<Velocity>();
+    ecs.addComponent(e3, Health{75});
+    std::cout << "  Entity " << e3 << ": Health\n";
 
-    std::cout << "Entity 1 tem Position? " << (posArray->has(e1) ? "Sim" : "Nao") << std::endl;
-    std::cout << "Entity 1 tem Velocity? " << (velArray->has(e1) ? "Sim" : "Nao") << std::endl;
-    std::cout << "Entity 2 tem Position? " << (posArray->has(e2) ? "Sim" : "Nao") << std::endl;
-    std::cout << "Entity 2 tem Velocity? " << (velArray->has(e2) ? "Sim" : "Nao") << std::endl;
+    // Simular alguns frames
+    std::cout << "\n>>> Simulando 3 frames...\n";
+    for (int frame = 1; frame <= 3; frame++) {
+        std::cout << "\n--- Frame " << frame << " ---\n";
+        ecs.update(0.016f);  // ~60 FPS
+    }
 
-    // Testar remoção
-    std::cout << "\n=== Removendo Velocity de Entity 1 ===" << std::endl;
-    registry.remove<Velocity>(e1);
-    std::cout << "Entity 1 tem Velocity? " << (velArray->has(e1) ? "Sim" : "Nao") << std::endl;
+    // Testar remoção de componente
+    std::cout << "\n>>> Removendo Velocity da Entity " << e0 << "...\n";
+    ecs.removeComponent<Velocity>(e0);
+    std::cout << "  Componente removido!\n";
 
-    // Testar onEntityDestroyed
-    std::cout << "\n=== Destruindo Entity 3 ===" << std::endl;
-    registry.onEntityDestroyed(e3);
-    std::cout << "Entity 3 tem Position? " << (posArray->has(e3) ? "Sim" : "Nao") << std::endl;
-    std::cout << "Entity 3 tem Velocity? " << (velArray->has(e3) ? "Sim" : "Nao") << std::endl;
+    // Mais um frame
+    std::cout << "\n--- Frame 4 ---\n";
+    ecs.update(0.016f);
 
-    std::cout << "\nTodos os testes concluidos!" << std::endl;
+    // Testar destruição de entidade
+    std::cout << "\n>>> Destruindo Entity " << e1 << "...\n";
+    ecs.destroyEntity(e1);
+    std::cout << "  Entidade destruida!\n";
+
+    // Frame final
+    std::cout << "\n--- Frame 5 ---\n";
+    ecs.update(0.016f);
+
+    std::cout << "\n========================================\n";
+    std::cout << "       Teste concluido com sucesso!\n";
+    std::cout << "========================================\n";
+
     return 0;
 }

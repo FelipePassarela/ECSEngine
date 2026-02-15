@@ -22,10 +22,6 @@ target_include_directories(ecs INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_executable(main src/main.cpp)
 target_link_libraries(main PRIVATE ecs)
 
-# Teste do ECSManager
-add_executable(test_ecs_manager src/test_ecs_manager.cpp)
-target_link_libraries(test_ecs_manager PRIVATE ecs)
-
 # Opção para build de release otimizado
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
