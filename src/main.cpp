@@ -24,20 +24,20 @@ public:
         std::cout << "[PrintSystem] Update chamado com dt=" << dt << "\n";
     }
 
-    bool required(Entity e) override {
+    bool required(Entity) override {
         return true;  // Aceita todas as entidades
     }
 };
 
 class CounterSystem : public System {
 public:
-    void update(float dt) override {
+    void update(float) override {
         updateCount++;
         std::cout << "[CounterSystem] Update #" << updateCount << "\n";
     }
 
     bool required(Entity e) override {
-        return e % 2 == 0;  // Aceita apenas entidades pares
+        return ComponentRegistry::getInstance().has<Position>(e);  // Requer Position para funcionar
     }
 
     int getUpdateCount() const { return updateCount; }
