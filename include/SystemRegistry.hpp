@@ -8,6 +8,13 @@
 
 class SystemRegistry {
 public:
+    static SystemRegistry& getInstance() {
+        static SystemRegistry instance;
+        return instance;
+    }
+    SystemRegistry(const SystemRegistry&) = delete;
+    void operator=(const SystemRegistry&) = delete;
+
     template <typename T>
     void add(const T& system) {
         static_assert(std::is_base_of<System, T>::value, "T must derive from System");
@@ -58,4 +65,6 @@ public:
 
 private:
     std::vector<std::unique_ptr<System>> systems;
+
+    SystemRegistry() = default;
 };

@@ -10,6 +10,13 @@
 
 class ComponentRegistry {
 public:
+    static ComponentRegistry& getInstance() {
+        static ComponentRegistry instance;
+        return instance;
+    }
+    ComponentRegistry(const ComponentRegistry&) = delete;
+    void operator=(const ComponentRegistry&) = delete;
+
     template <typename T>
     void add(Entity e, const T& component) {
         if (!hasArray<T>()) {
@@ -57,4 +64,6 @@ private:
     bool hasArray() const {
         return arrays.find(typeid(T)) != arrays.end();
     }
+
+    ComponentRegistry() = default;
 };

@@ -7,7 +7,12 @@
 
 class ECSManager {
 public:
-    ECSManager() { systemRegistry.buildPools(entityRegistry.begin(), entityRegistry.end()); }
+    static ECSManager& getInstance() {
+        static ECSManager instance;
+        return instance;
+    }
+    ECSManager(const ECSManager&) = delete;
+    void operator=(const ECSManager&) = delete;
 
     Entity createEntity() { return entityRegistry.create(); }
 
@@ -37,7 +42,9 @@ public:
     void update(float dt) { systemRegistry.update(dt); }
 
 private:
-    EntityRegistry entityRegistry = EntityRegistry();
-    ComponentRegistry componentRegistry = ComponentRegistry();
-    SystemRegistry systemRegistry = SystemRegistry();
+    EntityRegistry& entityRegistry = EntityRegistry::getInstance();
+    ComponentRegistry& componentRegistry = ComponentRegistry::getInstance();
+    SystemRegistry& systemRegistry = SystemRegistry::getInstance();
+
+    ECSManager() { systemRegistry.buildPools(entityRegistry.begin(), entityRegistry.end()); }
 };

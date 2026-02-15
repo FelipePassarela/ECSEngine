@@ -10,11 +10,12 @@
 
 class EntityRegistry {
 public:
-    EntityRegistry() {
-        for (Entity e = 0; e < MAX_ENTITIES; e++) {
-            availableEntities.push(e);
-        }
+    static EntityRegistry& getInstance() {
+        static EntityRegistry instance;
+        return instance;
     }
+    EntityRegistry(const EntityRegistry&) = delete;
+    void operator=(const EntityRegistry&) = delete;
 
     Entity create() {
         if (availableEntities.empty()) {
@@ -42,4 +43,10 @@ public:
 private:
     std::queue<Entity> availableEntities;
     EntitySparseSet activesEntities;
+
+    EntityRegistry() {
+        for (Entity e = 0; e < MAX_ENTITIES; e++) {
+            availableEntities.push(e);
+        }
+    }
 };
