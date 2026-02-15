@@ -28,7 +28,7 @@ public:
     }
 
     template <typename T>
-    const T* getComponent(Entity e) {
+    T* getComponent(Entity e) const {
         if (!hasArray<T>()) return nullptr;
         return getArray<T>()->getFrom(e);
     }
@@ -39,7 +39,7 @@ public:
     }
 
     template <typename T>
-    ComponentArray<T>* getArray() {
+    ComponentArray<T>* getArray() const {
         assert(hasArray<T>() && "Component not registered");
         return static_cast<ComponentArray<T>*>(arrays.at(typeid(T)).get());
     }

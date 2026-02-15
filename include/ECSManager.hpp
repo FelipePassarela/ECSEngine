@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ComponentRegistry.hpp"
-#include "Entity.hpp"
-#include "EntityRegistry.hpp"
-#include "SystemRegistry.hpp"
+#include "core/ComponentRegistry.hpp"
+#include "core/Entity.hpp"
+#include "core/EntityRegistry.hpp"
+#include "core/SystemRegistry.hpp"
 
 class ECSManager {
 public:
